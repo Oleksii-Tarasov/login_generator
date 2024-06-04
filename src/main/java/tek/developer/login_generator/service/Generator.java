@@ -32,7 +32,7 @@ public class Generator {
         String[] nameParts = fullName.split(" ");
 
         if (nameParts.length != 3) {
-            throw new IllegalArgumentException("The full name must consist of three parts: first name, last name, and patronymic.");
+            throw new IllegalArgumentException("The full name must consist of three parts in order: first name, last name, patronymic.");
         }
 
         String name = nameParts[0];
@@ -50,9 +50,6 @@ public class Generator {
     }
 
     private String transliterateText(String text) {
-        if (text == null || text.isEmpty())
-            return text;
-
         StringBuilder transliteratedText = new StringBuilder();
 
         char firstLetter = text.charAt(0);

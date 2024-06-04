@@ -19,9 +19,14 @@ public class LoginGenerator extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String fullName = req.getParameter("fullName");
-        String login = generator.generateLogin(fullName);
 
-        req.setAttribute("login", login);
+        try {
+            String login = generator.generateLogin(fullName);
+            req.setAttribute("login", login);
+            req.setAttribute("fullName", fullName);
+        } catch (IllegalArgumentException e) {
+            req.setAttribute("error", "The full name must consist of three parts in order: first name, last name, patronymic.");
+        }
 
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
