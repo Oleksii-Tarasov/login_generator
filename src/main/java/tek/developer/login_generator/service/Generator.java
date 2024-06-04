@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class Generator {
     private static final Map<Character, String> TRANSLITERATION_UKR_ALPHABET = new HashMap<>();
+    private static final Map<Character, String> TRANSLITERATION_UKR_ALPHABET_SPECIAL = new HashMap<>();
 
     static {
         TRANSLITERATION_UKR_ALPHABET.put('А', "A"); TRANSLITERATION_UKR_ALPHABET.put('Б', "B"); TRANSLITERATION_UKR_ALPHABET.put('В', "V");
@@ -18,37 +19,54 @@ public class Generator {
         TRANSLITERATION_UKR_ALPHABET.put('Ф', "F"); TRANSLITERATION_UKR_ALPHABET.put('Х', "Kh"); TRANSLITERATION_UKR_ALPHABET.put('Ц', "Ts");
         TRANSLITERATION_UKR_ALPHABET.put('Ч', "Ch"); TRANSLITERATION_UKR_ALPHABET.put('Ш', "Sh"); TRANSLITERATION_UKR_ALPHABET.put('Щ', "Shch");
         TRANSLITERATION_UKR_ALPHABET.put('Ю', "Yu"); TRANSLITERATION_UKR_ALPHABET.put('Я', "Ya"); TRANSLITERATION_UKR_ALPHABET.put('Ь', "");
+
+        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Є', "ie");
+        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Ї', "i");
+        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Й', "i");
+        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Ю', "iu");
+        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Я', "ia");
     }
 
     public String generateLogin(String fullName) {
         fullName = fullName.toUpperCase();
         String[] nameParts = fullName.split(" ");
 
+        if (nameParts.length != 3) {
+            throw new IllegalArgumentException("The full name must consist of three parts: first name, last name, and patronymic.");
+        }
+
         String name = nameParts[0];
         String lastName = nameParts[1];
         String patronymic = nameParts[2];
 
-        String transliteratedName = transliterate(name);
-        String transliteratedLastName = transliterate(lastName);
-        String transliteratedPatronymic = transliterate(patronymic);
+        String transliteratedName = transliterateText(name);
+        String transliteratedLastName = transliterateText(lastName);
+        String transliteratedPatronymic = transliterateText(patronymic);
 
-        String initials = transliteratedName.substring(0, 1) + transliteratedPatronymic.substring(0, 1);
-        transliteratedLastName = transliteratedLastName.substring(0, 1) + transliteratedLastName.substring(1).toLowerCase();
+        String initials = transliteratedName.charAt(0) + transliteratedPatronymic.substring(0, 1);
+        transliteratedLastName = transliteratedLastName.charAt(0) + transliteratedLastName.substring(1).toLowerCase();
 
         return transliteratedLastName + initials;
     }
 
-    private String transliterate(String text) {
+    private String transliterateText(String text) {
         if (text == null || text.isEmpty())
             return text;
 
-        StringBuilder transliterated = new StringBuilder();
+        StringBuilder transliteratedText = new StringBuilder();
 
-        for (char ch : text.toCharArray()) {
-            String textChar = TRANSLITERATION_UKR_ALPHABET.getOrDefault(ch, String.valueOf(ch));
-            transliterated.append(textChar);
+        char firstLetter = text.charAt(0);
+        String lastLetters = text.substring(1);
+
+        transliteratedText.append(TRANSLITERATION_UKR_ALPHABET.getOrDefault(firstLetter, String.valueOf(firstLetter)));
+
+        for (char ch : lastLetters.toCharArray()) {
+            if (TRANSLITERATION_UKR_ALPHABET_SPECIAL.containsKey(ch))
+                transliteratedText.append(TRANSLITERATION_UKR_ALPHABET_SPECIAL.getOrDefault(ch, String.valueOf(ch)));
+            else
+                transliteratedText.append(TRANSLITERATION_UKR_ALPHABET.getOrDefault(ch, String.valueOf(ch)));
         }
 
-        return transliterated.toString();
+        return transliteratedText.toString();
     }
 }
