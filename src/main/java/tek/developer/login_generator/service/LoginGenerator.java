@@ -9,54 +9,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static tek.developer.login_generator.constant.ResourceFilesPath.UKR_ALPHABET_FILE_PATH;
+
 public class LoginGenerator {
     private static LoginGenerator loginGenerator;
-    private static final Map<Character, String> TRANSLITERATION_UKR_ALPHABET = new HashMap<>();
-    private static final Map<Character, String> TRANSLITERATION_UKR_ALPHABET_SPECIAL = new HashMap<>();
+    private final AlphabetLoader alphabetLoader;
+    private Map<Character, String> transliterationAlphabet;
+    private Map<Character, String> transliterationAlphabetSpecial;
 
-    static {
-        TRANSLITERATION_UKR_ALPHABET.put('А', "A");
-        TRANSLITERATION_UKR_ALPHABET.put('Б', "B");
-        TRANSLITERATION_UKR_ALPHABET.put('В', "V");
-        TRANSLITERATION_UKR_ALPHABET.put('Г', "H");
-        TRANSLITERATION_UKR_ALPHABET.put('Ґ', "G");
-        TRANSLITERATION_UKR_ALPHABET.put('Д', "D");
-        TRANSLITERATION_UKR_ALPHABET.put('Е', "E");
-        TRANSLITERATION_UKR_ALPHABET.put('Є', "Ye");
-        TRANSLITERATION_UKR_ALPHABET.put('Ж', "Zh");
-        TRANSLITERATION_UKR_ALPHABET.put('З', "Z");
-        TRANSLITERATION_UKR_ALPHABET.put('И', "Y");
-        TRANSLITERATION_UKR_ALPHABET.put('І', "I");
-        TRANSLITERATION_UKR_ALPHABET.put('Ї', "Yi");
-        TRANSLITERATION_UKR_ALPHABET.put('Й', "Y");
-        TRANSLITERATION_UKR_ALPHABET.put('К', "K");
-        TRANSLITERATION_UKR_ALPHABET.put('Л', "L");
-        TRANSLITERATION_UKR_ALPHABET.put('М', "M");
-        TRANSLITERATION_UKR_ALPHABET.put('Н', "N");
-        TRANSLITERATION_UKR_ALPHABET.put('О', "O");
-        TRANSLITERATION_UKR_ALPHABET.put('П', "P");
-        TRANSLITERATION_UKR_ALPHABET.put('Р', "R");
-        TRANSLITERATION_UKR_ALPHABET.put('С', "S");
-        TRANSLITERATION_UKR_ALPHABET.put('Т', "T");
-        TRANSLITERATION_UKR_ALPHABET.put('У', "U");
-        TRANSLITERATION_UKR_ALPHABET.put('Ф', "F");
-        TRANSLITERATION_UKR_ALPHABET.put('Х', "Kh");
-        TRANSLITERATION_UKR_ALPHABET.put('Ц', "Ts");
-        TRANSLITERATION_UKR_ALPHABET.put('Ч', "Ch");
-        TRANSLITERATION_UKR_ALPHABET.put('Ш', "Sh");
-        TRANSLITERATION_UKR_ALPHABET.put('Щ', "Shch");
-        TRANSLITERATION_UKR_ALPHABET.put('Ю', "Yu");
-        TRANSLITERATION_UKR_ALPHABET.put('Я', "Ya");
-        TRANSLITERATION_UKR_ALPHABET.put('Ь', "");
-
-        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Є', "ie");
-        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Ї', "i");
-        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Й', "i");
-        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Ю', "iu");
-        TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Я', "ia");
+    private LoginGenerator() {
+        this.alphabetLoader = new AlphabetLoader();
+        this.transliterationAlphabet = new HashMap<>();
+        this.transliterationAlphabetSpecial = new HashMap<>();
     }
 
-    public static LoginGenerator getGenerator() {
+    public static LoginGenerator getLoginGenerator() {
         if (loginGenerator == null) {
             loginGenerator = new LoginGenerator();
         }
@@ -64,7 +31,7 @@ public class LoginGenerator {
         return loginGenerator;
     }
 
-    public String generateLogin(String fullName) {
+    public String generateLoginFromFullName(String fullName) {
         fullName = fullName.toUpperCase();
         String[] nameParts = fullName.split(" ");
 
@@ -94,7 +61,7 @@ public class LoginGenerator {
                 String fullName;
                 while ((fullName = reader.readLine()) != null) {
                     try {
-                        String login = generateLogin(fullName);
+                        String login = generateLoginFromFullName(fullName);
                         fullNamesAndLogins.add(new FullNameAndLogin(fullName, login));
                     } catch (IllegalArgumentException e) {
                         fullNamesAndLogins.add(new FullNameAndLogin(fullName, "Invalid input"));
@@ -106,21 +73,28 @@ public class LoginGenerator {
     }
 
     private String transliterateText(String text) {
+        loadAlphabet();
         StringBuilder transliteratedText = new StringBuilder();
 
         char firstLetter = text.charAt(0);
         String lastLetters = text.substring(1);
 
-        transliteratedText.append(TRANSLITERATION_UKR_ALPHABET.getOrDefault(firstLetter, String.valueOf(firstLetter)));
+        transliteratedText.append(transliterationAlphabet.getOrDefault(firstLetter, String.valueOf(firstLetter)));
 
         for (char ch : lastLetters.toCharArray()) {
-            if (TRANSLITERATION_UKR_ALPHABET_SPECIAL.containsKey(ch))
-                transliteratedText.append(TRANSLITERATION_UKR_ALPHABET_SPECIAL.getOrDefault(ch, String.valueOf(ch)));
+            if (transliterationAlphabetSpecial.containsKey(ch))
+                transliteratedText.append(transliterationAlphabetSpecial.getOrDefault(ch, String.valueOf(ch)));
             else
-                transliteratedText.append(TRANSLITERATION_UKR_ALPHABET.getOrDefault(ch, String.valueOf(ch)));
+                transliteratedText.append(transliterationAlphabet.getOrDefault(ch, String.valueOf(ch)));
         }
 
         return transliteratedText.toString();
+    }
+
+    private void loadAlphabet() {
+        alphabetLoader.loadAlphabetFromFile(UKR_ALPHABET_FILE_PATH);
+        transliterationAlphabet = alphabetLoader.getTransliterationAlphabet();
+        transliterationAlphabetSpecial = alphabetLoader.getTransliterationAlphabetSpecial();
     }
 
     public static class FullNameAndLogin {
