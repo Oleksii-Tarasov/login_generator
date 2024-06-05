@@ -1,6 +1,6 @@
 package tek.developer.login_generator.servlet;
 
-import tek.developer.login_generator.service.Generator;
+import tek.developer.login_generator.service.LoginGenerator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/generate")
-public class LoginGenerator extends HttpServlet {
-    private final Generator generator = Generator.getGenerator();
+public class FullNameHandler extends HttpServlet {
+    private final LoginGenerator loginGenerator = LoginGenerator.getGenerator();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -19,14 +19,11 @@ public class LoginGenerator extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String fullName = req.getParameter("fullName");
+        String login = loginGenerator.generateLogin(fullName);
 
-        try {
-            String login = generator.generateLogin(fullName);
-            req.setAttribute("login", login);
-            req.setAttribute("fullName", fullName);
-        } catch (IllegalArgumentException e) {
-            req.setAttribute("error", "The full name must consist of three parts in order: first name, last name, patronymic.");
-        }
+        req.setAttribute("login", login);
+        req.setAttribute("fullName", fullName);
+
 
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }

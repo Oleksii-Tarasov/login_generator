@@ -25,8 +25,8 @@
 </c:if>
 
 <form action="upload" method="post" enctype="multipart/form-data">
-    <label for="file">Upload File with Full Names</label>
-    <input type="file" id="file" name="file" accept=".txt" required>
+    <label for="file">Upload File(.txt) with Full Names</label>
+    <input type="file" id="file" name="file" accept=".txt">
     <button type="submit">Upload and Generate Logins</button>
 </form>
 

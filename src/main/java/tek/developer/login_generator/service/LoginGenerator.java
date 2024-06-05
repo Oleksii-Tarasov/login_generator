@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Generator {
-    private static Generator generator;
+public class LoginGenerator {
+    private static LoginGenerator loginGenerator;
     private static final Map<Character, String> TRANSLITERATION_UKR_ALPHABET = new HashMap<>();
     private static final Map<Character, String> TRANSLITERATION_UKR_ALPHABET_SPECIAL = new HashMap<>();
 
@@ -56,12 +56,12 @@ public class Generator {
         TRANSLITERATION_UKR_ALPHABET_SPECIAL.put('Я', "ia");
     }
 
-    public static Generator getGenerator() {
-        if (generator == null) {
-            generator = new Generator();
+    public static LoginGenerator getGenerator() {
+        if (loginGenerator == null) {
+            loginGenerator = new LoginGenerator();
         }
 
-        return generator;
+        return loginGenerator;
     }
 
     public String generateLogin(String fullName) {
@@ -69,7 +69,7 @@ public class Generator {
         String[] nameParts = fullName.split(" ");
 
         if (nameParts.length != 3) {
-            throw new IllegalArgumentException("The full name must consist of three parts in order: first name, last name, patronymic.");
+            return "Full Name must consist of three parts!";
         }
 
         String name = nameParts[0];
