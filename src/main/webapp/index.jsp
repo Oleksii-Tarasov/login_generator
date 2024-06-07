@@ -6,87 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <title>Login Generator</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
     <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-
-        .b-example-divider {
-            width: 100%;
-            height: 3rem;
-            background-color: rgba(0, 0, 0, .1);
-            border: solid rgba(0, 0, 0, .15);
-            border-width: 1px 0;
-            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
-        }
-
-        .b-example-vr {
-            flex-shrink: 0;
-            width: 1.5rem;
-            height: 100vh;
-        }
-
-        .bi {
-            vertical-align: -.125em;
-            fill: currentColor;
-        }
-
-        .nav-scroller {
-            position: relative;
-            z-index: 2;
-            height: 2.75rem;
-            overflow-y: hidden;
-        }
-
-        .nav-scroller .nav {
-            display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
-            text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .btn-bd-primary {
-            --bd-violet-bg: #712cf9;
-            --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-            --bs-btn-font-weight: 600;
-            --bs-btn-color: var(--bs-white);
-            --bs-btn-bg: var(--bd-violet-bg);
-            --bs-btn-border-color: var(--bd-violet-bg);
-            --bs-btn-hover-color: var(--bs-white);
-            --bs-btn-hover-bg: #6528e0;
-            --bs-btn-hover-border-color: #6528e0;
-            --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-            --bs-btn-active-color: var(--bs-btn-hover-color);
-            --bs-btn-active-bg: #5a23c8;
-            --bs-btn-active-border-color: #5a23c8;
-        }
-
-        .bd-mode-toggle {
-            z-index: 1500;
-        }
-
-        .bd-mode-toggle .dropdown-menu .active .bi {
-            display: block !important;
-        }
+        <%@include file="css/style.css"%>
     </style>
+    <title>Login Generator</title>
 </head>
 <body>
 
@@ -96,6 +20,7 @@
         <div class="modal-content rounded-4 shadow">
             <div class="modal-header border-bottom-0">
                 <h1 class="modal-title fs-5">Login Generator</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="copyToClipboard()"></button>
             </div>
             <div class="modal-body py-0">
                 <p>Enter Full Name in order:</p>
@@ -111,7 +36,7 @@
 
                 <c:if test="${not empty login}">
                     <h1 class="modal-title fs-5">Login for `${fullName}`:</h1>
-                    <h1 class="modal-title fs-5">${login}</h1>
+                    <h1 class="modal-title fs-5" id="generatedLogin">${login}</h1>
                 </c:if>
                 <c:if test="${not empty error}">
                     <h1 class="modal-title fs-5">${error}</h1>
@@ -119,45 +44,69 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="b-example-divider"></div>
+    <div class="b-example-divider"></div>
 
-<div class="modal modal-sheet position-static d-block bg-body-secondary p-4 py-md-5" tabindex="-1" role="dialog"
-     id="modalSheet">
     <div class="modal-dialog" role="document">
         <div class="modal-content rounded-4 shadow">
             <div class="modal-header border-bottom-0">
                 <h1 class="modal-title fs-5">Generation From File</h1>
             </div>
             <div class="modal-body py-0">
-                <p>Upload File(.txt) with Full Names:</p>
+                <p>Upload File(.txt) with Full Names.</p>
+                <p>Full Names should be in order: Name LastName Patronymic<br>
+                   Each Full Name starts on a new line.</p>
                 <form class="row g-3" action="upload" method="post" enctype="multipart/form-data">
                     <div class="col-auto">
                         <input type="file" id="file" name="file" accept=".txt">
                         <button type="submit" class="btn btn-primary mb-3">Generate Logins</button>
                     </div>
                 </form>
+                <c:if test="${not empty results}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Full Name</th>
+                            <th scope="col">Generated Login</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% int id = 1; %>
+                        <c:forEach var="entry" items="${results}">
+                            <tr>
+                                <td><%=id %></td>
+                                <td>${entry.fullName}</td>
+                                <td>${entry.login}</td>
+                            </tr>
+                            <% id++; %>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+                </c:if>
             </div>
         </div>
     </div>
 </div>
 
-<c:if test="${not empty results}">
-    <h4>Generated Logins</h4>
-    <table border="1">
-        <tr>
-            <th>Original Name</th>
-            <th>Generated Login</th>
-        </tr>
-        <c:forEach var="entry" items="${results}">
-            <tr>
-                <td>${entry.fullName}</td>
-                <td>${entry.login}</td>
-            </tr>
-        </c:forEach>
-    </table>
-</c:if>
+<div class="copy-notification" id="copyNotification">
+    Copied to clipboard!
+</div>
+
+<script>
+    function copyToClipboard() {
+        var textToCopy = document.getElementById("generatedLogin").innerText;
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            var notification = document.getElementById("copyNotification");
+            notification.style.display = 'block';
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 2000);
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
