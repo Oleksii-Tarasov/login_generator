@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         <%@include file="css/style.css"%>
     </style>
@@ -20,7 +21,9 @@
         <div class="modal-content rounded-4 shadow">
             <div class="modal-header border-bottom-0">
                 <h1 class="modal-title fs-5">Login Generator</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="copyToClipboard()"></button>
+                <button type="button" class="btn-copy" onclick="copyToClipboard()">
+                    <i class="fa-regular fa-copy"></i>
+                </button>
             </div>
             <div class="modal-body py-0">
                 <p>Enter Full Name in order:</p>
@@ -33,7 +36,6 @@
                         <button type="submit" class="btn btn-primary mb-3">Generate Login</button>
                     </div>
                 </form>
-
                 <c:if test="${not empty login}">
                     <h1 class="modal-title fs-5">Login for `${fullName}`:</h1>
                     <h1 class="modal-title fs-5" id="generatedLogin">${login}</h1>
@@ -51,6 +53,9 @@
         <div class="modal-content rounded-4 shadow">
             <div class="modal-header border-bottom-0">
                 <h1 class="modal-title fs-5">Generation From File</h1>
+                <button type="button" class="btn-copy" onclick="copyTableToClipboard()">
+                    <i class="fa-regular fa-copy"></i>
+                </button>
             </div>
             <div class="modal-body py-0">
                 <p>Upload File(.txt) with Full Names.</p>
@@ -63,7 +68,7 @@
                     </div>
                 </form>
                 <c:if test="${not empty results}">
-                    <table class="table">
+                    <table class="table" id="resultsTable">
                         <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -97,14 +102,39 @@
     function copyToClipboard() {
         var textToCopy = document.getElementById("generatedLogin").innerText;
         navigator.clipboard.writeText(textToCopy).then(function() {
-            var notification = document.getElementById("copyNotification");
-            notification.style.display = 'block';
-            setTimeout(function() {
-                notification.style.display = 'none';
-            }, 2000);
+            showNotification("Copied to clipboard!")
         }, function(err) {
             console.error('Could not copy text: ', err);
         });
+    }
+
+    function copyTableToClipboard() {
+        var table = document.getElementById("resultsTable");
+        var rows = table.querySelectorAll('tr');
+        var csvContent = "";
+        rows.forEach(function(row) {
+            var cells = row.querySelectorAll('td, th');
+            var rowContent = [];
+            cells.forEach(function(cell) {
+                rowContent.push(cell.innerText);
+            });
+            csvContent += rowContent.join(",") + "\n";
+        });
+
+        navigator.clipboard.writeText(csvContent).then(function() {
+            showNotification("Copied to clipboard!");
+        }, function(err) {
+            console.error('Could not copy table: ', err);
+        });
+    }
+
+    function showNotification(message) {
+        var notification = document.getElementById("copyNotification");
+        notification.innerText = message;
+        notification.style.display = 'block';
+        setTimeout(function() {
+            notification.style.display = 'none';
+        }, 2000);
     }
 </script>
 
