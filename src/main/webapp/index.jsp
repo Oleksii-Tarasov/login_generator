@@ -40,9 +40,6 @@
                     <h1 class="modal-title fs-5">Login for `${fullName}`:</h1>
                     <h1 class="modal-title fs-5" id="generatedLogin">${login}</h1>
                 </c:if>
-                <c:if test="${not empty error}">
-                    <h1 class="modal-title fs-5">${error}</h1>
-                </c:if>
             </div>
         </div>
     </div>
@@ -53,14 +50,19 @@
         <div class="modal-content rounded-4 shadow">
             <div class="modal-header border-bottom-0">
                 <h1 class="modal-title fs-5">Generation From File</h1>
-                <button type="button" class="btn-copy" onclick="copyTableToClipboard()">
-                    <i class="fa-regular fa-copy"></i>
-                </button>
+                <div class="d-flex">
+                    <button type="button" class="btn-copy me-5" onclick="downloadResults()">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+                    <button type="button" class="btn-copy" onclick="copyTableToClipboard()">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
             </div>
             <div class="modal-body py-0">
                 <p>Upload File(.txt) with Full Names.</p>
                 <p>Full Names should be in order: Name LastName Patronymic<br>
-                   Each Full Name starts on a new line.</p>
+                    Each Full Name starts on a new line.</p>
                 <form class="row g-3" action="upload" method="post" enctype="multipart/form-data">
                     <div class="col-auto">
                         <input type="file" id="file" name="file" accept=".txt">
@@ -80,7 +82,8 @@
                         <% int id = 1; %>
                         <c:forEach var="entry" items="${results}">
                             <tr>
-                                <td><%=id %></td>
+                                <td><%=id %>
+                                </td>
                                 <td>${entry.fullName}</td>
                                 <td>${entry.login}</td>
                             </tr>
@@ -88,6 +91,9 @@
                         </c:forEach>
                         </tbody>
                     </table>
+                </c:if>
+                <c:if test="${not empty message}">
+                    <h1 class="modal-title fs-5">${message}</h1>
                 </c:if>
             </div>
         </div>
@@ -101,9 +107,9 @@
 <script>
     function copyToClipboard() {
         var textToCopy = document.getElementById("generatedLogin").innerText;
-        navigator.clipboard.writeText(textToCopy).then(function() {
+        navigator.clipboard.writeText(textToCopy).then(function () {
             showNotification("Copied to clipboard!")
-        }, function(err) {
+        }, function (err) {
             console.error('Could not copy text: ', err);
         });
     }
@@ -112,27 +118,31 @@
         var table = document.getElementById("resultsTable");
         var rows = table.querySelectorAll('tr');
         var csvContent = "";
-        rows.forEach(function(row) {
+        rows.forEach(function (row) {
             var cells = row.querySelectorAll('td, th');
             var rowContent = [];
-            cells.forEach(function(cell) {
+            cells.forEach(function (cell) {
                 rowContent.push(cell.innerText);
             });
             csvContent += rowContent.join(",") + "\n";
         });
 
-        navigator.clipboard.writeText(csvContent).then(function() {
+        navigator.clipboard.writeText(csvContent).then(function () {
             showNotification("Copied to clipboard!");
-        }, function(err) {
+        }, function (err) {
             console.error('Could not copy table: ', err);
         });
+    }
+
+    function downloadResults() {
+        window.location.href = "download";
     }
 
     function showNotification(message) {
         var notification = document.getElementById("copyNotification");
         notification.innerText = message;
         notification.style.display = 'block';
-        setTimeout(function() {
+        setTimeout(function () {
             notification.style.display = 'none';
         }, 2000);
     }

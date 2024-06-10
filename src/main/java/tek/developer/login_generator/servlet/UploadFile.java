@@ -10,18 +10,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/upload")
 @MultipartConfig
-public class FileServlet extends HttpServlet {
+public class UploadFile extends HttpServlet {
     private final LoginGenerator loginGenerator = LoginGenerator.getLoginGenerator();
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         req.setCharacterEncoding("UTF-8");
 
         Part filePart = req.getPart("file");
-        req.setAttribute("results", loginGenerator.generateLoginsFromFile(filePart));
+        List<LoginGenerator.FullNameAndLogin> results = loginGenerator.generateLoginsFromFile(filePart);
+
+        req.getSession().setAttribute("results", results);
+        req.setAttribute("results", results);
 
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
